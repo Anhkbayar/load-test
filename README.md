@@ -47,12 +47,7 @@
 | Total requests  | **230** |
 | Error rate      |  **0%** |
 
-```text
-Error Rate = Failed Requests / Total Requests × 100%
-
-           = 0 / 230 × 100%
-
-           = 0%
+Error Rate = Failed Requests / Total Requests × 100% = 0 / 230 × 100% = 0%
 
 Нийт 230 request-ээс нэг ч request амжилтгүй болоогүй. Иймээс error rate буюу POFOD-той адилтган үзсэн үзүүлэлт нь 0% байна.
 
@@ -70,4 +65,7 @@ Error Rate = Failed Requests / Total Requests × 100%
 <!-- LOAD_TEST_RESULTS_END -->
 
 ELECTRON_OZONE_PLATFORM_HINT=x11 zed
+
+```
+
 ```
