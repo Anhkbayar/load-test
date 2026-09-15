@@ -4,8 +4,8 @@ import http from 'k6/http';
 export const options = {
   vus: 5, duration: "1m",
   thresholds: {
-    http_req_duration: ['p(95)<297.7'], // SLO: p95 < 253ms
-    http_req_failed: ['rate<0.001'], // SLO: error rate < 1%
+    http_req_duration: ['p(95)<65'],
+    http_req_failed: ['rate<0.001'], // SLO: error rate < 0.1%
   },
 
 };
