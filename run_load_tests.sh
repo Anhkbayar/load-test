@@ -41,10 +41,11 @@ echo ""
 # --- 2. Extract metrics with jq ---
 file="$RESULTS_DIR/result_${VUS}.json"
 
-P90=$(jq -r '.metrics.http_req_duration.values["p(90)"] // 0' "$file")
-P95=$(jq -r '.metrics.http_req_duration.values["p(95)"] // 0' "$file")
-THROUGHPUT=$(jq -r '.metrics.http_reqs.values.rate // 0' "$file")
-ERROR_RATE=$(jq -r '.metrics.http_req_failed.values.rate // 0' "$file")
+P90=$(jq -r '.metrics.http_req_duration["p(90)"] // 0' "$file")
+P95=$(jq -r '.metrics.http_req_duration["p(95)"] // 0' "$file")
+THROUGHPUT=$(jq -r '.metrics.http_reqs.rate // 0' "$file")
+ERROR_RATE=$(jq -r '.metrics.http_req_failed.value // 0' "$file")
+
 
 # --- 3. Build the markdown table ---
 TABLE="## Staged Load Test Results\n\n"
@@ -72,11 +73,13 @@ if [ ! -f "$README" ]; then
   echo "Created $README with results table."
 else
   if grep -q "$MARKER_START" "$README"; then
-    awk -v start="$MARKER_START" -v end="$MARKER_END" -v table="$TABLE" '
-      $0 ~ start {print start; print table; f=1; next}
-      $0 ~ end {print end; f=0; next}
-      !f {print}
-    ' "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
+      awk -v start="$MARKER_START" -v end="$MARKER_END" -v table="$TABLE" '
+        BEGIN { gsub(/\\n/, "\n", table) }
+        $0 ~ start {print start; print table; f=1; next}
+        $0 ~ end {print end; f=0; next}
+        !f {print}
+      ' "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
+
 
     echo "Updated results table in $README."
   else
