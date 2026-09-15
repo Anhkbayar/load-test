@@ -9,7 +9,7 @@ set -euo pipefail
 
 TARGET_URL="${1:-https://test.k6.io}"
 TEST_DURATION="${2:-30s}"
-SCRIPT="script.js"
+SCRIPT="script.ts"
 README="README.md"
 RESULTS_DIR="results"
 VU_LEVELS=(5 30 100)
