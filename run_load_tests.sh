@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Runs a k6 load test using VUS from the environment,
 # extracts p90/p95/throughput/error-rate with jq,
-# and writes the results into a markdown table inside README.md.
+# and appends a row to the markdown table inside README.md.
 #
 # Usage:
 #   VUS=5 ./run_load_tests.sh [TARGET_URL] [DURATION]
@@ -46,52 +46,53 @@ P95=$(jq -r '.metrics.http_req_duration["p(95)"] // 0' "$file")
 THROUGHPUT=$(jq -r '.metrics.http_reqs.rate // 0' "$file")
 ERROR_RATE=$(jq -r '.metrics.http_req_failed.value // 0' "$file")
 
-
-# --- 3. Build the markdown table ---
-TABLE="## Staged Load Test Results\n\n"
-TABLE+="| VU | p90 (ms) | p95 (ms) | Throughput (req/s) | Error Rate |\n"
-TABLE+="|----|----------|----------|--------------------|------------|\n"
-
+# --- 3. Format metrics into a table row ---
 p90=$(printf "%.1f" "$P90")
 p95=$(printf "%.1f" "$P95")
 tp=$(printf "%.2f" "$THROUGHPUT")
 err=$(printf "%.2f%%" "$(echo "$ERROR_RATE * 100" | bc -l)")
 
-TABLE+="| $VUS | $p90 | $p95 | $tp | $err |\n"
+ROW="| $VUS | $TEST_DURATION | $p90 | $p95 | $tp | $err |"
 
-TABLE+="\n**Test date:** $(date +%Y-%m-%d)\n"
-TABLE+="**Target:** \`$TARGET_URL\`\n"
-TABLE+="**VUs:** $VUS\n"
-TABLE+="**Duration:** $TEST_DURATION\n"
+# Static table header (written only once).
+TABLE_HEADER="## Staged Load Test Results
 
-# --- 4. Insert/replace the table in README.md ---
+| VU | Duration | p90 (ms) | p95 (ms) | Throughput (req/s) | Error Rate |
+|----|----------|----------|----------|--------------------|------------|"
+
+# --- 4. Append the row to the table in README.md ---
 MARKER_START="<!-- LOAD_TEST_RESULTS_START -->"
 MARKER_END="<!-- LOAD_TEST_RESULTS_END -->"
 
 if [ ! -f "$README" ]; then
-  echo -e "$MARKER_START\n$TABLE$MARKER_END" > "$README"
+  {
+    echo "$MARKER_START"
+    echo "$TABLE_HEADER"
+    echo "$ROW"
+    echo "$MARKER_END"
+  } > "$README"
   echo "Created $README with results table."
+elif grep -q "$MARKER_START" "$README"; then
+  awk -v end="$MARKER_END" -v row="$ROW" '
+    $0 ~ end {
+      while (n > 0 && buf[n] ~ /^[[:space:]]*$/) n--
+      buf[++n] = row
+      buf[++n] = $0
+      next
+    }
+    { buf[++n] = $0 }
+    END { for (i = 1; i <= n; i++) print buf[i] }
+  ' "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
+  echo "Appended row to results table in $README."
 else
-  if grep -q "$MARKER_START" "$README"; then
-      awk -v start="$MARKER_START" -v end="$MARKER_END" -v table="$TABLE" '
-        BEGIN { gsub(/\\n/, "\n", table) }
-        $0 ~ start {print start; print table; f=1; next}
-        $0 ~ end {print end; f=0; next}
-        !f {print}
-      ' "$README" > "${README}.tmp" && mv "${README}.tmp" "$README"
-
-
-    echo "Updated results table in $README."
-  else
-    {
-      echo ""
-      echo "$MARKER_START"
-      echo -e "$TABLE"
-      echo "$MARKER_END"
-    } >> "$README"
-
-    echo "Appended results table to $README."
-  fi
+  {
+    echo ""
+    echo "$MARKER_START"
+    echo "$TABLE_HEADER"
+    echo "$ROW"
+    echo "$MARKER_END"
+  } >> "$README"
+  echo "Appended results table to $README."
 fi
 
 echo ""
