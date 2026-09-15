@@ -94,6 +94,10 @@ p95(http_req_duration) ≤ 298.43 ms
 | 100 | 60s      | 305.84   | 306.95   | 75.82              | 0%         |
 | 100 | 60s      | 4.79     | 6.73     | 99.63              | 0%         |
 
+Load testing-д ашигласан local test server:
+
+[GitHub Repository](https://github.com/Anhkbayar/test-server)
+
 Load test-ийн үр дүнгээс харахад серверт 300 мс-ийн artificial delay нэмэхэд гүйцэтгэл мэдэгдэхүйц буурсан байна. Delay-гүй үед p90 нь 4.79 мс, p95 нь 6.73 мс, throughput нь 99.63 req/s байсан бол 300 мс delay-тэй үед p90 305.84 мс, p95 306.95 мс, throughput 75.82 req/s болж буурсан.
 
 Мөн хоёр туршилтын үед хоёуланд нь error rate 0% байсан бөгөөд бүх request амжилттай хариу өгсөн. Иймээс delay нь серверийн найдвартай байдалд нөлөөлөөгүй ч response time болон нийт throughput-д шууд сөргөөр нөлөөлсөн гэж дүгнэсэн.
