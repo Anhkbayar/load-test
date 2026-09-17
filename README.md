@@ -9,6 +9,7 @@
 - **Duration:** 30 секунд
 - **Total iterations:** 115
 - **Total HTTP requests:** 230
+- **K6 version:** k6 v2.2.0 (commit/00a9a1b7f5, go1.26.5, linux/amd64)
 
 ## Үндсэн үзүүлэлтүүд
 
@@ -57,7 +58,7 @@ Error Rate = Failed Requests / Total Requests × 100% = 0 / 230 × 100% = 0%
 
 | VU  | Duration | p90 (ms) | p95 (ms) | Throughput (req/s) | Error Rate |
 | --- | -------- | -------- | -------- | ------------------ | ---------- |
-| 5   | 1m       | 228.7    | 230.3    | 7.57               | 0.00%      |
+| 5   | 1m       | 226.0    | 228.0    | 7.60               | 0.00%      |
 | 30  | 1m       | 236.9    | 242.0    | 45.20              | 0.00%      |
 | 100 | 1m       | 234.0    | 237.5    | 150.02             | 0.00%      |
 
